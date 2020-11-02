@@ -133,7 +133,7 @@ namespace rmath
 		v.q /= nod;
 		return v;
 	}
-
+	//todo: REQUIRE - algorithm (formula)
 	inline const bool eq_lowest(const real_t& lhs, const real_t& rhs)
 	{
 		return to_double(lhs) < to_double(rhs);
