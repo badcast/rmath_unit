@@ -9,6 +9,7 @@ namespace rmath
 	struct real_t; // is real value: How to exist?
 
 	inline const double to_double(real_t val);
+	inline const real_t to_prime(real_t v);
 
 	struct real_t
 	{
@@ -24,12 +25,7 @@ namespace rmath
 			this->q = q;
 		}
 
-		explicit real_t(const double& rhs) {
-			m = 0;
-			p = int(rhs * 1000) - int(rhs * 100);
-			q = 900;
-		}
-
+		explicit real_t(const double& rhs);
 		explicit real_t(const int32_t& rhs) : real_t(static_cast<int64_t>(rhs)) {}
 		explicit real_t(const uint32_t& rhs) : real_t(static_cast<uint64_t>(rhs)) {}
 
@@ -44,7 +40,7 @@ namespace rmath
 			this->q = 1;
 		}
 
-		explicit operator const double() {
+		operator const double() {
 			return to_double(*this);
 		}
 	};
@@ -58,20 +54,45 @@ namespace rmath
 	const  real_t positiveInfinity{ 0, 1, 0 };
 	const  real_t negativeInfinity{ 0, -1, 0 };
 
+	real_t::real_t(const double& rhs) {
+		if (rhs == INFINITY)
+		{
+			*this = positiveInfinity;
+		}
+		else if (rhs == -INFINITY)
+		{
+			*this = negativeInfinity;
+		}
+		else {
+			m = 0;
+			p = int(rhs * 1000) - int(rhs * 100);
+			q = 900;
+			*this = to_prime(*this);
+		}
+	}
 
 	inline const real_t create(int p, int q, int c = 0)
 	{
 		return { c, p, q };
 	}
-	inline const real_t create(double x)
+	inline const real_t create(double rhs)
 	{
-		real_t d;
-
-		d.m = 0;
-		d.p = int(x * 1000) - int(x * 100);
-		d.q = 900;
-
-		return d;
+		real_t v;
+		if (rhs == INFINITY)
+		{
+			v = positiveInfinity;
+		}
+		else if (rhs == -INFINITY)
+		{
+			v = negativeInfinity;
+		}
+		else {
+			v.m = 0;
+			v.p = int(rhs * 1000) - int(rhs * 100);
+			v.q = 900;
+			v = to_prime(v);
+		}
+		return v;
 	}
 
 	inline const bool is_negative(const real_t& v)
@@ -91,7 +112,7 @@ namespace rmath
 
 	inline const bool is_int(const real_t& v, int value)
 	{
-		return v.m == 0 && v.p == value && v.q == 1;
+		return !v.m && v.p == value && v.q == 1;
 	}
 
 	inline const bool is_zero(const real_t& v)
@@ -114,26 +135,28 @@ namespace rmath
 		return !v.m;
 	}
 
-	//Убирает косвенные
-	inline const real_t normalize(real_t v)
+	inline const real_t to_prime(real_t v)
 	{
-		if (!is_normalize(v))
+		auto nod = NOD(abs(v.p), abs(v.q));
+		if (nod > 1)
 		{
-			v.p = v.m * v.q + v.p;
-			v.m = 0;
+			v.p = v.p / static_cast<int>(nod);
+			v.q = v.q / static_cast<int>(nod);
 		}
 		return v;
 	}
 
-	inline const real_t to_prime(real_t v)
+	//Убирает косвенные
+	inline const real_t normalize(real_t v)
 	{
-		auto nod = NOD(abs(v.p), abs(v.q));
-
-		v.p /= nod;
-		v.q /= nod;
-		return v;
+		if (!is_normalize(v)) // break do normalize value
+		{
+			v.p = v.m * v.q + v.p;
+			v.m = 0;
+		}
+		return to_prime(v);
 	}
-	//todo: REQUIRE - algorithm (formula)
+
 	inline const bool eq_lowest(const real_t& lhs, const real_t& rhs)
 	{
 		return to_double(lhs) < to_double(rhs);
@@ -142,39 +165,31 @@ namespace rmath
 	// оператор сложения
 	inline const real_t add(real_t lhs, real_t rhs)
 	{
+		if (!lhs.q || !rhs.q)
+			return lhs;
+
 		lhs = normalize(lhs);
 		rhs = normalize(rhs);
 
 		auto nok = NOK(lhs.q, rhs.q); // nok
-
 		lhs.p = lhs.p * (nok / lhs.q);
 		lhs.q = nok;
-
 		rhs.p = rhs.p * (nok / rhs.q);
-
 		lhs.p += rhs.p; // add
-
-
 		return lhs;
 	}
 
 	// оператор вычитания 
 	inline const real_t sub(real_t lhs, real_t rhs)
 	{
-		decltype(NOK(0,0)) nok;
+		decltype(NOK(0, 0)) nok; // get the type (is optimal variant) c++ 14
 		lhs = normalize(lhs);
 		rhs = normalize(rhs);
-
 		nok = NOK(lhs.q, rhs.q); // nok
-
 		lhs.p = lhs.p * (nok / lhs.q);
 		lhs.q = nok;
-
 		rhs.p = rhs.p * (nok / rhs.q);
-
 		lhs.p -= rhs.p; // sub
-
-
 		return lhs;
 	}
 
@@ -230,21 +245,21 @@ namespace rmath
 	}
 
 	const real_t operator *(const real_t& lhs, const real_t& rhs) {
-		return mul(lhs, rhs);
+		return mul(lhs, rhs, true);
 	}
 
 	const real_t operator +(const real_t& lhs, const double& rhs) {
 		real_t num = lhs + real_t(rhs);
 		return num;
-	}	
+	}
 	const real_t operator -(const real_t& lhs, const double& rhs) {
 		real_t num = lhs - real_t(rhs);
 		return num;
-	}	
+	}
 	const real_t operator *(const real_t& lhs, const double& rhs) {
 		real_t num = lhs * real_t(rhs);
 		return num;
-	}	
+	}
 	const real_t operator /(const real_t& lhs, const double& rhs) {
 		real_t num = lhs / real_t(rhs);
 		return num;
@@ -261,6 +276,36 @@ namespace rmath
 		return num == num2;
 	}
 
+	const bool operator >(real_t lhs, real_t rhs) {
+		lhs = normalize(lhs);
+		rhs = normalize(rhs);
+
+		if (lhs.q == rhs.q)
+			return lhs.p > rhs.p;
+		else if (lhs.p == rhs.p)
+			return lhs.q < rhs.q;
+
+		return to_double(lhs) > to_double(rhs);
+	}
+
+	const bool operator <(real_t lhs, real_t rhs) {
+		lhs = normalize(lhs);
+		rhs = normalize(rhs);
+
+		if (lhs.q == rhs.q)
+			return lhs.p < rhs.p;
+		else if (lhs.p == rhs.p)
+			return lhs.q > rhs.q;
+
+		return to_double(lhs) < to_double(rhs);
+	}
+
+	const bool operator ==(const real_t& lhs, const double& rhs)
+	{
+		return to_double(lhs) == rhs;
+	}
+
+	const bool operator ==(const double& lhs, const real_t& rhs) { return rhs == lhs; }
 
 }
 #endif
