@@ -43,13 +43,14 @@ namespace rmath
 			this->q = 1;
 		}
 
-		operator const double() {
+		operator double() {
 			return to_double(*this);
 		}
 	};
 
 	//const value 
-	const  real_t minusOne{ 0, -1, 1 };
+	const  real_t minusOne{ 0, 
+			       1, 1 };
 	const  real_t zero{ 0, 0, 1 };
 	const  real_t one{ 0, 1, 1 };
 	const  real_t two{ 0, 2, 1 };
@@ -255,7 +256,7 @@ const size_t NOK(long lhs, long rhs) throw()
 		return lhs;
 	}
 
-	// оператор вычитания 
+	//Operation subtraction 
 	inline const real_t sub(real_t lhs, real_t rhs)
 	{
 		decltype(NOK(0, 0)) nok; // get the type (is optimal variant) c++ 14
