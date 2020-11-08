@@ -222,7 +222,7 @@ const size_t NOK(long lhs, long rhs) throw()
 		return v;
 	}
 
-	//Убирает косвенные
+	//To normalize value
 	inline const real_t normalize(real_t v)
 	{
 		if (!is_normalize(v)) // break do normalize value
@@ -238,7 +238,7 @@ const size_t NOK(long lhs, long rhs) throw()
 		return to_double(lhs) < to_double(rhs);
 	}
 
-	// оператор сложения
+	//Operation addition
 	inline const real_t add(real_t lhs, real_t rhs)
 	{
 		if (!lhs.q || !rhs.q)
