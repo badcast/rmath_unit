@@ -49,8 +49,7 @@ namespace rmath
 	};
 
 	//const value 
-	const  real_t minusOne{ 0, 
-			       1, 1 };
+	const  real_t minusOne{ 0, -1, 1 };
 	const  real_t zero{ 0, 0, 1 };
 	const  real_t one{ 0, 1, 1 };
 	const  real_t two{ 0, 2, 1 };
