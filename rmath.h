@@ -7,13 +7,12 @@
 
 namespace rmath
 {
-	constexpr double INFINITY = std::numeric_limits<double>::infinity(); // infinity by value the are 1/0 = ~8 
 	struct real_t; // is real value: How to exist?
 
 	inline const double to_double(real_t val);
 	inline const real_t to_prime(real_t v);
 	inline const real_t mix(real_t value);
-	
+
 	struct real_t
 	{
 		int m;		// целое 
@@ -46,6 +45,14 @@ namespace rmath
 		operator double() {
 			return to_double(*this);
 		}
+
+		real_t& operator +=(const real_t& rhs);
+
+		real_t& operator -=(const real_t& rhs);
+
+		real_t& operator *=(const real_t& rhs);
+
+		real_t& operator /=(const real_t& rhs);
 	};
 
 	//const value 
@@ -58,11 +65,11 @@ namespace rmath
 	const  real_t negativeInfinity{ 0, -1, 0 };
 
 	real_t::real_t(const double& rhs) {
-		if (rhs == INFINITY)
+		if (rhs == std::numeric_limits<double>::infinity())
 		{
 			*this = positiveInfinity;
 		}
-		else if (rhs == -INFINITY)
+		else if (rhs == -std::numeric_limits<double>::infinity())
 		{
 			*this = negativeInfinity;
 		}
@@ -81,11 +88,11 @@ namespace rmath
 	inline const real_t create(double rhs)
 	{
 		real_t v;
-		if (rhs == INFINITY)
+		if (rhs == std::numeric_limits<double>::infinity())
 		{
 			v = positiveInfinity;
 		}
-		else if (rhs == -INFINITY)
+		else if (rhs == -std::numeric_limits<double>::infinity())
 		{
 			v = negativeInfinity;
 		}
@@ -139,76 +146,76 @@ namespace rmath
 	}
 
 	std::list<uint16_t> get_multipliers(long value)
-{
-    if(!value) 
-        return std::list<uint16_t>();
+	{
+		if (!value)
+			return std::list<uint16_t>();
 
-    std::list<uint16_t> lst;
-    ldiv_t delta;
-    long divide = 2;
-	
-    delta.quot = value;
-    while (delta.quot != 1)
-    {
-        do
-        {
-            delta = ldiv((long)value, (long)divide);
-            if (delta.rem)
-            {
-                divide+=delta.rem;
-            }
-            else
-            {
-                value = delta.quot;
-                break;
-            }
-        } while (true);
-        lst.emplace_back(divide);
-    }
-    return lst;
-}
+		std::list<uint16_t> lst;
+		ldiv_t delta;
+		long divide = 2;
 
-const size_t NOD(long lhs, long rhs) throw()
-{
-	if(lhs==rhs)
-	return lhs;
-	
-    //todo: Оптимизировать O(n2) нужен O(n)
-    size_t result = 1;
-    auto lstLhs = get_multipliers(lhs);
-    auto lstRhs = get_multipliers(rhs);
+		delta.quot = value;
+		while (delta.quot != 1)
+		{
+			do
+			{
+				delta = ldiv((long)value, (long)divide);
+				if (delta.rem)
+				{
+					divide += delta.rem;
+				}
+				else
+				{
+					value = delta.quot;
+					break;
+				}
+			} while (true);
+			lst.emplace_back(divide);
+		}
+		return lst;
+	}
 
-    for (auto i = lstLhs.begin(); i != lstLhs.end(); ++i)
-        for (auto j = lstRhs.begin(); j != lstRhs.end(); ++j)
-            if (*i == *j)
-            {
-                result *= *i;
-                lstRhs.erase(j);
-                break;
-            }
-    return result;
-}
+	const size_t NOD(long lhs, long rhs) throw()
+	{
+		if (lhs == rhs)
+			return lhs;
 
-const size_t NOK(long lhs, long rhs) throw()
-{
-	if(lhs==rhs)
-	return lhs;
-    
-    //todo: Оптимизировать O(n2) нужен O(n)
-    size_t result = lhs;
-    auto lstLhs = get_multipliers(lhs);
-    auto lstRhs = get_multipliers(rhs);
+		//todo: Оптимизировать O(n2) нужен O(n)
+		size_t result = 1;
+		auto lstLhs = get_multipliers(lhs);
+		auto lstRhs = get_multipliers(rhs);
 
-    for (auto i = lstLhs.begin(); i != lstLhs.end(); ++i)
-        for (auto j = lstRhs.begin(); j != lstRhs.end(); ++j)
-            if (*i != *j)
-            {
-                result *= *j;
-                lstRhs.erase(j);
-                break;
-            }
-    return result;
-}
+		for (auto i = lstLhs.begin(); i != lstLhs.end(); ++i)
+			for (auto j = lstRhs.begin(); j != lstRhs.end(); ++j)
+				if (*i == *j)
+				{
+					result *= *i;
+					lstRhs.erase(j);
+					break;
+				}
+		return result;
+	}
+
+	const size_t NOK(long lhs, long rhs) throw()
+	{
+		if (lhs == rhs)
+			return lhs;
+
+		//todo: Оптимизировать O(n2) нужен O(n)
+		size_t result = lhs;
+		auto lstLhs = get_multipliers(lhs);
+		auto lstRhs = get_multipliers(rhs);
+
+		for (auto i = lstLhs.begin(); i != lstLhs.end(); ++i)
+			for (auto j = lstRhs.begin(); j != lstRhs.end(); ++j)
+				if (*i != *j)
+				{
+					result *= *j;
+					lstRhs.erase(j);
+					break;
+				}
+		return result;
+	}
 
 
 	inline const real_t to_prime(real_t v)
@@ -301,14 +308,14 @@ const size_t NOK(long lhs, long rhs) throw()
 		return lhs;
 	}
 
-	inline const real_t mix(real_t value){
+	inline const real_t mix(real_t value) {
 		value = normalize(value);
-		if(!right(value))
+		if (!right(value))
 		{
 			value.m = value.p / value.q;
-			value.q = value.p % value.q;
+			value.p = value.p % value.q;
 		}
-		return value; 
+		return value;
 	}
 
 	inline const double to_double(real_t val)
@@ -355,6 +362,22 @@ const size_t NOK(long lhs, long rhs) throw()
 	const real_t operator -(const double& lhs, const real_t& rhs) { return rhs - lhs; }
 	const real_t operator *(const double& lhs, const real_t& rhs) { return rhs * lhs; }
 	const real_t operator /(const double& lhs, const real_t& rhs) { return rhs / lhs; }
+
+	real_t& real_t::operator +=(const real_t& rhs) {
+		return *this = *this + rhs;
+	}
+
+	real_t& real_t::operator -=(const real_t& rhs) {
+		return *this = *this - rhs;
+	}
+
+	real_t& real_t::operator *=(const real_t& rhs) {
+		return *this = *this * rhs;
+	}
+
+	real_t& real_t::operator /=(const real_t& rhs) {
+		return *this = *this / rhs;
+	}
 
 	const bool operator ==(const real_t& lhs, const real_t& rhs) {
 		double num = to_double(lhs);
