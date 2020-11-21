@@ -2,12 +2,17 @@
 #define __RMATH_H
 
 #include <stdint.h>
+#include <stdlib.h>
 #include <limits>
 #include <list>
 
 namespace rmath
 {
-	struct real_t; // is real value: How to exist?
+	struct real_t; // declaration 
+
+	/*
+		feature: real8, real16, real24, real32, real64 are for calculating math
+	*/
 
 	inline const double to_double(real_t val);
 	inline const real_t to_prime(real_t v);
@@ -145,76 +150,81 @@ namespace rmath
 		return !v.m;
 	}
 
-	std::list<uint16_t> get_multipliers(long value)
+	std::list<uint16_t> get_multipliers(std::size_t value)
 	{
 		if (!value)
 			return std::list<uint16_t>();
 
 		std::list<uint16_t> lst;
 		ldiv_t delta;
-		long divide = 2;
-
+		long divide;
 		delta.quot = value;
+		divide = 2;
 		while (delta.quot != 1)
 		{
-			do
+			for (;;)
 			{
-				delta = ldiv((long)value, (long)divide);
+				delta = std::ldiv(static_cast<long>(value), divide);
 				if (delta.rem)
-				{
-					divide += delta.rem;
-				}
+					++divide;
 				else
 				{
 					value = delta.quot;
 					break;
 				}
-			} while (true);
-			lst.emplace_back(divide);
+			}
+			lst.push_back(divide);
 		}
 		return lst;
 	}
 
-	const size_t NOD(long lhs, long rhs) throw()
+	const std::size_t NOD(std::size_t lhs, std::size_t rhs) throw()
 	{
 		if (lhs == rhs)
 			return lhs;
+		else if (lhs > rhs)
+			std::swap(lhs, rhs);
 
 		//todo: Оптимизировать O(n2) нужен O(n)
-		size_t result = 1;
-		auto lstLhs = get_multipliers(lhs);
-		auto lstRhs = get_multipliers(rhs);
+		auto arrL = get_multipliers(lhs);
+		auto arrR = get_multipliers(rhs);
+		auto p1 = arrL.cbegin();
+		auto p2 = arrR.cbegin();
 
-		for (auto i = lstLhs.begin(); i != lstLhs.end(); ++i)
-			for (auto j = lstRhs.begin(); j != lstRhs.end(); ++j)
-				if (*i == *j)
-				{
-					result *= *i;
-					lstRhs.erase(j);
-					break;
-				}
-		return result;
+		lhs = 1;
+		while (p1 != arrL.cend() && p2 != arrR.cend())
+		{
+			if (*p1 == *p2)
+			{
+				lhs *= *p2;
+				++p1;
+			}
+			++p2;
+		}
+		return lhs;
 	}
 
-	const size_t NOK(long lhs, long rhs) throw()
+	const std::size_t NOK(std::size_t lhs, std::size_t rhs) throw()
 	{
 		if (lhs == rhs)
 			return lhs;
+		else if (lhs > rhs)
+			std::swap(lhs, rhs);
 
-		//todo: Оптимизировать O(n2) нужен O(n)
-		size_t result = lhs;
-		auto lstLhs = get_multipliers(lhs);
-		auto lstRhs = get_multipliers(rhs);
+		auto arrL = get_multipliers(lhs);
+		auto arrR = get_multipliers(rhs);
+		auto p1 = arrL.cbegin();
+		auto p2 = arrR.cbegin();
+		while (p1 != arrL.cend() && p2 != arrR.cend())
+		{
+			if (*p1 == *p2)
+				++p1;
+			else
+				lhs *= *p2;
+			++p2;
+		}
 
-		for (auto i = lstLhs.begin(); i != lstLhs.end(); ++i)
-			for (auto j = lstRhs.begin(); j != lstRhs.end(); ++j)
-				if (*i != *j)
-				{
-					result *= *j;
-					lstRhs.erase(j);
-					break;
-				}
-		return result;
+		return lhs;
 	}
 
 
@@ -321,7 +331,6 @@ namespace rmath
 	inline const double to_double(real_t val)
 	{
 		val = normalize(val);
-
 		return static_cast<double>(val.p) / val.q;
 	}
 
