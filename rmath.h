@@ -1,3 +1,5 @@
+//Это версия заголовка является основое для своего изучения 
+
 #ifndef __RMATH_H
 #define __RMATH_H
 
@@ -9,7 +11,7 @@
 namespace rmath
 {
 	struct real_t; // declaration 
-
+    
 	/*
 		feature: real8, real16, real24, real32, real64 are for calculating math
 	*/
