@@ -1,81 +1,58 @@
 //Это версия заголовка является основое для своего изучения 
 
 #include "rmath.hpp"
+/*
+	features: real8, real16, real24, real32, real64 are for calculating math
+*/
 
-	/*
-		feature: real8, real16, real24, real32, real64 are for calculating math
-	*/
-namespace rmath
-{
-	struct real_t
-	{
-		int m;		// целое 
-		int p;		// числитель
-		int q;		// знаменатель
+using namespace rmath;
 
-		real_t() = default;
+//const value 
+const  real_t minusOne{ 0, -1, 1 };
+const  real_t zero{ 0, 0, 1 };
+const  real_t one{ 0, 1, 1 };
+const  real_t two{ 0, 2, 1 };
+const  real_t NaN{ 0, 0, 0 };
+const  real_t positiveInfinity{ 0, 1, 0 };
+const  real_t negativeInfinity{ 0, -1, 0 };
 
-		real_t(const int& m, const int& p, const int& q) {
-			this->m = m;
-			this->p = p;
-			this->q = q;
-		}
+real_t::realt(const int& m, const int& p, const int& q){
+    this->m = m;
+    this->p = p;
+    this->q = q;
+}
+real_t::real_t(const int64_t& rhs) {
+    this->m = 0;
+    this->p = rhs;
+    this->q = 1;
+}
+real_t::real_t(const uint64_t& rhs) {
+    this->m = 0;
+    this->p = rhs;
+    this->q = 1;
+}
+real_t::real_t(const double& rhs) {
+    if (rhs == std::numeric_limits<double>::infinity())
+    {
+        *this = positiveInfinity;
+    }
+    else if (rhs == -std::numeric_limits<double>::infinity())
+    {
+        *this = negativeInfinity;
+    }
+    else {
+        m = 0;
+        p = int(rhs * 1000) - int(rhs * 100);
+        q = 900;
+        *this = to_prime(*this);
+    }
+}
 
-		explicit real_t(const double& rhs);
-		explicit real_t(const int32_t& rhs) : real_t(static_cast<int64_t>(rhs)) {}
-		explicit real_t(const uint32_t& rhs) : real_t(static_cast<uint64_t>(rhs)) {}
+real_t::operator double(){
+    return to_double(*this);
+}
 
-		explicit real_t(const int64_t& rhs) {
-			this->m = 0;
-			this->p = rhs;
-			this->q = 1;
-		}
-		explicit real_t(const uint64_t& rhs) {
-			this->m = 0;
-			this->p = rhs;
-			this->q = 1;
-		}
-
-		operator double() {
-			return to_double(*this);
-		}
-
-		real_t& operator +=(const real_t& rhs);
-
-		real_t& operator -=(const real_t& rhs);
-
-		real_t& operator *=(const real_t& rhs);
-
-		real_t& operator /=(const real_t& rhs);
-	};
-
-	//const value 
-	const  real_t minusOne{ 0, -1, 1 };
-	const  real_t zero{ 0, 0, 1 };
-	const  real_t one{ 0, 1, 1 };
-	const  real_t two{ 0, 2, 1 };
-	const  real_t NaN{ 0, 0, 0 };
-	const  real_t positiveInfinity{ 0, 1, 0 };
-	const  real_t negativeInfinity{ 0, -1, 0 };
-
-	real_t::real_t(const double& rhs) {
-		if (rhs == std::numeric_limits<double>::infinity())
-		{
-			*this = positiveInfinity;
-		}
-		else if (rhs == -std::numeric_limits<double>::infinity())
-		{
-			*this = negativeInfinity;
-		}
-		else {
-			m = 0;
-			p = int(rhs * 1000) - int(rhs * 100);
-			q = 900;
-			*this = to_prime(*this);
-		}
-	}
-
-	inline const real_t create(int p, int q, int c = 0)
+inline const real_t create(int p, int q, int c = 0)
 	{
 		return { c, p, q };
 	}
@@ -139,7 +116,7 @@ namespace rmath
 		return !v.m;
 	}
 
-	std::list<uint16_t> get_multipliers(std::size_t value)
+    std::list<uint16_t> get_multipliers(std::size_t value)
 	{
 		if (!value)
 			return std::list<uint16_t>();
@@ -323,6 +300,8 @@ namespace rmath
 		return static_cast<double>(val.p) / val.q;
 	}
 
+// ----------------- operators
+
 	const real_t operator +(const real_t& lhs, const real_t& rhs) {
 		return add(lhs, rhs);
 	}
@@ -413,6 +392,3 @@ namespace rmath
 	}
 
 	const bool operator ==(const double& lhs, const real_t& rhs) { return rhs == lhs; }
-
-}
-#endif
