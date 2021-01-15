@@ -391,4 +391,7 @@ inline const real_t create(int p, int q, int c = 0)
 		return to_double(lhs) == rhs;
 	}
 
-	const bool operator ==(const double& lhs, const real_t& rhs) { return rhs == lhs; }
+	const bool operator ==(const double& lhs, const real_t& rhs) 
+    { 
+        return rhs == lhs; 
+    }
