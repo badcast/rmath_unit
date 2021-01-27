@@ -3,6 +3,11 @@
 #ifndef __RMATH_H
 #define __RMATH_H
 
+#include "./core/real8.hpp"
+#include "./core/real16.hpp"
+#include "./copre/real24.hpp"
+#include "./core/real32.hpp"
+
 
 
 namespace rmath {
@@ -23,6 +28,8 @@ export const real32 NaN; //initialized in cpp file
 export const real32 positiveInfinity; //initialized in cpp file
 export const real32 negativeInfinity; //initialized in cpp file
 
+template<typename _from, typename _to>
+//inline const _to convertUnits(const _from& value)
 inline const real32 create(int p, int q, int c = 0);
 inline const real32 create(double rhs);
 inline const bool is_negative(const real32& v);
