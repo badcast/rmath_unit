@@ -1,11 +1,12 @@
 #pragma once
 
 #include <core.hpp>
+#include <real32.hpp>
 
 namespace rmath{
     //real8 contained void* type
     class real8 : public core::realbase{
-        char data[1]; //len 8 bits
+        std::int8_t data[1]; //len 8 bits
 
         public:
             virtual operator float();
@@ -24,7 +25,5 @@ namespace rmath{
             virtual operator std::uint64_t();
              
     } real8_t;
-
-
     
 }

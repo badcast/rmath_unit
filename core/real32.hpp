@@ -5,6 +5,7 @@
 namespace rmath{
 
 class real32: public core::realbase {
+    std::int8_t data[4];
     int m; // целое
     int p; // числитель
     int q; // знаменатель
@@ -26,6 +27,7 @@ class real32: public core::realbase {
     explicit real32(const uint64_t& rhs);
 
     operator double();
+
     real32& operator+=(const real32& rhs);
     real32& operator-=(const real32& rhs);
     real32& operator*=(const real32& rhs);

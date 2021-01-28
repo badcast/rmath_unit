@@ -12,6 +12,8 @@ namespace rmath{
             public: 
             realbase();
 
+            //operators
+
             virtual operator float()=0;
             virtual operator double()=0;
 
@@ -28,5 +30,8 @@ namespace rmath{
             virtual operator std::uint64_t()=0;
         }
     }
+
+
+    
 
 }
