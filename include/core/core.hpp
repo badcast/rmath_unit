@@ -1,10 +1,8 @@
 //Class for all real type base
 #pragma once
 
-#include <stdint.h>
-#include <stdlib.h>
+#include <cstdint>
 #include <limits>
-#include <list>
 
 namespace rmath{
     namespace core{
@@ -27,10 +25,6 @@ namespace rmath{
             virtual operator std::uint16_t()=0;
             virtual operator std::uint32_t()=0;
             virtual operator std::uint64_t()=0;
-        }
+        };
     }
-
-
-    
-
 }

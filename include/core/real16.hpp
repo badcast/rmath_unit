@@ -1,7 +1,7 @@
-#include <core.hpp>
-#include <real8.hpp>
-#include <real16.hpp>
-#include <real32.hpp>
+#pragma once
+#include "core.hpp"
+#include "real8.hpp"
+#include "real32.hpp"
 
 namespace rmath{
     class real16 : public core::realbase{
@@ -9,5 +9,5 @@ namespace rmath{
         public: 
         real16();
         
-    }
+    };
 }

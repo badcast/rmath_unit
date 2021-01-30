@@ -1,7 +1,10 @@
 #pragma once
 
-#include <core.hpp>
-#include <real32.hpp>
+#include "core.hpp"
+#include "real16.hpp"
+#include "real24.hpp"
+#include "real32.hpp"
+
 
 namespace rmath{
     //real8 contained void* type
