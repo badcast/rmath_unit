@@ -2,13 +2,14 @@
 #pragma once
 
 #include <cstdint>
-#include <limits>
 
 namespace rmath{
     namespace core{
+       template<const int _size>
         class realbase{ // abstract class
-            public: 
-            realbase();
+           protected:
+              int8_t _buffer[_size];
+           public:
 
             //operators
             virtual operator float()=0;
