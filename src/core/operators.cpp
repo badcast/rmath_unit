@@ -23,7 +23,7 @@ namespace rmath {
             v.m = 0;
             v.p = int(rhs * 1000) - int(rhs * 100);
             v.q = 900;
-            v = to_prime(v);
+            v = prime(v);
          }
          return v;
       }
@@ -37,7 +37,9 @@ namespace rmath {
       inline const bool is_nan(const rmath::real_t& v) {
          return !v.m && !v.p && !v.q;
       }
-
+      inline const bool is_int(const rmath::real_t& v) {
+         return !v.m && v.q == 1;
+      }
       inline const bool is_int(const rmath::real_t& v, int value) {
          return !v.m && v.p == value && v.q == 1;
       }
@@ -46,7 +48,7 @@ namespace rmath {
 
       inline const bool is_one(const rmath::real_t& v) { return is_int(v, 1); }
 
-      inline const bool right(const rmath::real_t& v) {
+      inline const bool is_right(const rmath::real_t& v) {
          return v.m == 0 && v.p < v.q;
       }
 
@@ -75,7 +77,7 @@ namespace rmath {
          return lst;
       }
 
-      const std::size_t NOD(std::size_t lhs, std::size_t rhs) {
+      const std::size_t nod(std::size_t lhs, std::size_t rhs) {
          if (lhs == rhs)
             return lhs;
          else if (lhs > rhs)
@@ -98,7 +100,7 @@ namespace rmath {
          return lhs;
       }
 
-      const std::size_t NOK(std::size_t lhs, std::size_t rhs) {
+      const std::size_t nok(std::size_t lhs, std::size_t rhs) {
          if (lhs == rhs)
             return lhs;
          else if (lhs > rhs)
@@ -119,11 +121,11 @@ namespace rmath {
          return lhs;
       }
 
-      inline const rmath::real_t to_prime(rmath::real_t v) {
-         auto nod = NOD(abs(v.p), abs(v.q));
-         if (nod > 1) {
-            v.p = v.p / static_cast<int>(nod);
-            v.q = v.q / static_cast<int>(nod);
+      inline const rmath::real_t prime(rmath::real_t v) {
+         auto num = nod(abs(v.p), abs(v.q));
+         if (num > 1) {
+            v.p = v.p / static_cast<int>(num);
+            v.q = v.q / static_cast<int>(num);
          }
          return v;
       }
@@ -135,12 +137,7 @@ namespace rmath {
             v.p = v.m * v.q + v.p;
             v.m = 0;
          }
-         return to_prime(v);
-      }
-
-      inline const bool eq_lowest(const rmath::real_t& lhs,
-                                  const rmath::real_t& rhs) {
-         return to_double(lhs) < to_double(rhs);
+         return prime(v);
       }
 
       // Operation addition
@@ -150,23 +147,23 @@ namespace rmath {
          lhs = normalize(lhs);
          rhs = normalize(rhs);
 
-         auto nok = NOK(lhs.q, rhs.q);  // nok
-         lhs.p = lhs.p * (nok / lhs.q);
-         lhs.q = nok;
-         rhs.p = rhs.p * (nok / rhs.q);
+         auto num = nok(lhs.q, rhs.q);  // nok
+         lhs.p = lhs.p * (num / lhs.q);
+         lhs.q = num;
+         rhs.p = rhs.p * (num / rhs.q);
          lhs.p += rhs.p;  // add
          return lhs;
       }
 
       // Operation subtraction
       inline const rmath::real_t sub(rmath::real_t lhs, rmath::real_t rhs) {
-         decltype(NOK(0, 0)) nok;  // get the type (is optimal variant) c++ 14
+         decltype(nok(0, 0)) num;  // get the type (is optimal variant) c++ 14
          lhs = normalize(lhs);
          rhs = normalize(rhs);
-         nok = NOK(lhs.q, rhs.q);  // nok
-         lhs.p = lhs.p * (nok / lhs.q);
-         lhs.q = nok;
-         rhs.p = rhs.p * (nok / rhs.q);
+         num = nok(lhs.q, rhs.q);  // nok
+         lhs.p = lhs.p * (num / lhs.q);
+         lhs.q = num;
+         rhs.p = rhs.p * (num / rhs.q);
          lhs.p -= rhs.p;  // sub
          return lhs;
       }
@@ -180,7 +177,7 @@ namespace rmath {
          lhs.p *= rhs.p;
          lhs.q *= rhs.q;
 
-         if (toPrime) lhs = to_prime(lhs);
+         if (toPrime) lhs = prime(lhs);
 
          return lhs;
       }
@@ -196,14 +193,14 @@ namespace rmath {
          lhs.p *= rhs.p;
          lhs.q *= rhs.q;
 
-         if (toPrime) lhs = to_prime(lhs);
+         if (toPrime) lhs = prime(lhs);
 
          return lhs;
       }
 
       inline const rmath::real_t mix(rmath::real_t value) {
          value = normalize(value);
-         if (!right(value)) {
+         if (!is_right(value)) {
             value.m = value.p / value.q;
             value.p = value.p % value.q;
          }
@@ -215,57 +212,54 @@ namespace rmath {
          return static_cast<double>(val.p) / val.q;
       }
 
+      template <typename T>
+      get_value<T>::get_value(const T&) {
+         throw std::bad_cast(); // throw
+      }
+
+      get_value<rmath::real8>::get_value(const ::rmath::real8& value) {
+         this->is_digit10 = (*value._raw)&0x2;
+         this->is_frac = false;
+         this->is_infinity = false;
+         this->is_negative = (*value._raw)&0x1;
+         this->x = 0;
+         this->y = 0;
+         this->z = 0;
+         this->result = 0;
+      }
+
+      get_value<rmath::real16>::get_value(const ::rmath::real16& value) {
+         this->is_digit10 = (*value._raw)&0x2;
+         this->is_frac = false;
+         this->is_infinity = false;
+         this->is_negative = (*value._raw)&0x1;
+         this->x = 0;
+         this->y = 0;
+         this->z = 0;
+      }
+
+      get_value<rmath::real24>::get_value(const ::rmath::real24& value) {
+         this->is_digit10 = (*value._raw)&0x2;
+         this->is_frac = false;
+         this->is_infinity = false;
+         this->is_negative = (*value._raw)&0x1;;
+         this->x = 0;
+         this->y = 0;
+         this->z = 0;
+      }
+
+      get_value<rmath::real32>::get_value(const ::rmath::real32& value) {
+         this->is_digit10 = (*value._raw)&0x2;
+         this->is_frac = false;
+         this->is_infinity = false;
+         this->is_negative = (*value._raw)&0x1;
+         this->x = 0;
+         this->y = 0;
+         this->z = 0;
+         this->result = 0;
+      }
+
       // ----------------- operators
-
-      const rmath::real_t operator+(const rmath::real_t& lhs,
-                                    const rmath::real_t& rhs) {
-         return add(lhs, rhs);
-      }
-
-      const rmath::real_t operator-(const rmath::real_t& lhs,
-                                    const rmath::real_t& rhs) {
-         return sub(lhs, rhs);
-      }
-
-      const rmath::real_t operator/(const rmath::real_t& lhs,
-                                    const rmath::real_t& rhs) {
-         return div(lhs, rhs);
-      }
-
-      const rmath::real_t operator*(const rmath::real_t& lhs,
-                                    const rmath::real_t& rhs) {
-         return mul(lhs, rhs, true);
-      }
-
-      const rmath::real_t operator+(const rmath::real_t& lhs, const double& rhs) {
-         rmath::real_t num = lhs + rmath::real_t(rhs);
-         return num;
-      }
-      const rmath::real_t operator-(const rmath::real_t& lhs, const double& rhs) {
-         rmath::real_t num = lhs - rmath::real_t(rhs);
-         return num;
-      }
-      const rmath::real_t operator*(const rmath::real_t& lhs, const double& rhs) {
-         rmath::real_t num = lhs * rmath::real_t(rhs);
-         return num;
-      }
-      const rmath::real_t operator/(const rmath::real_t& lhs, const double& rhs) {
-         rmath::real_t num = lhs / rmath::real_t(rhs);
-         return num;
-      }
-
-      const rmath::real_t operator+(const double& lhs, const rmath::real_t& rhs) {
-         return rhs + lhs;
-      }
-      const rmath::real_t operator-(const double& lhs, const rmath::real_t& rhs) {
-         return rhs - lhs;
-      }
-      const rmath::real_t operator*(const double& lhs, const rmath::real_t& rhs) {
-         return rhs * lhs;
-      }
-      const rmath::real_t operator/(const double& lhs, const rmath::real_t& rhs) {
-         return rhs / lhs;
-      }
 
       const bool operator==(const rmath::real_t& lhs, const rmath::real_t& rhs) {
          double num = to_double(lhs);

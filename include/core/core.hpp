@@ -1,31 +1,51 @@
-//Class for all real type base
+// Class for all real type base
 #pragma once
 
 #include <cstdint>
 
-namespace rmath{
-    namespace core{
-       template<const int _size>
-        class realbase{ // abstract class
-           protected:
-              int8_t _buffer[_size];
-           public:
+namespace rmath {
+    class real8;
+    class real16;
+    class real24;
+    class real32;
+    class real64;
 
-            //operators
-            virtual operator float()=0;
-            virtual operator double()=0;
+    namespace func {
+        template <typename type>
+        struct get_value;
 
-            //signed section
-            virtual operator std::int8_t()=0;
-            virtual operator std::int16_t()=0; 
-            virtual operator std::int64_t()=0;
-            virtual operator std::int32_t()=0;
-            
-            //unsigned section
-            virtual operator std::uint8_t()=0;
-            virtual operator std::uint16_t()=0;
-            virtual operator std::uint32_t()=0;
-            virtual operator std::uint64_t()=0;
+        template <>
+        struct get_value<::rmath::real8>;
+
+        template <>
+        struct get_value<::rmath::real16>;
+
+        template <>
+        struct get_value<::rmath::real24>;
+
+        template <>
+        struct get_value<::rmath::real32>;
+
+    }  // namespace func
+}  // namespace rmath
+
+namespace rmath {
+
+    namespace core {
+
+        template <const std::size_t _size, typename _Derived>
+        class realbase {  // abstract class
+                using type = _Derived;
+                friend struct ::rmath::func::get_value<::rmath::real8>;
+                friend struct ::rmath::func::get_value<::rmath::real16>;
+                friend struct ::rmath::func::get_value<::rmath::real24>;
+                friend struct ::rmath::func::get_value<::rmath::real32>;
+
+            protected:
+                int8_t _raw[_size];
+
+            public:
+                static const std::size_t size() { return _size; }
         };
-    }
-}
+    }  // namespace core
+}  // namespace rmath
